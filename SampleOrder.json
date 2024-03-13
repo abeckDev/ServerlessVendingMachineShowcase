@@ -1,0 +1,20 @@
+{
+    "OrderId": "b3a3f6e1-7bf9-4cf9-a57e-776d79e99b85",
+    "OrderDate": "2022-04-01T12:34:56.789Z",
+    "OrderStatus": "New",
+    "SubscriptionTask": {
+        "CostCenterId": "123",
+        "TenantId": "456"
+    },
+    "PermissionsTask": {
+        "SubscriptionId": "789",
+        "OwnerIds": [
+            "100",
+            "101"
+        ],
+        "ContributorIds": [
+            "102",
+            "103"
+        ]
+    }
+}
