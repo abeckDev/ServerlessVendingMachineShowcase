@@ -122,12 +122,12 @@ namespace VendingMachineFunctions.Services
         }
 
         //Get Status by OrderId
-        public async Task<OrderStatus> GetOrderStatusAsync(string orderId)
+        public async Task<Order> GetOrderStatusAsync(string orderId)
         {
             try
             {
                 //Get TableEntity
-                return (await tableClient.GetEntityAsync<OrderStatus>("orders", orderId)).Value;
+                return MapStateToOrder((await tableClient.GetEntityAsync<OrderStatus>("orders", orderId)).Value);
             }
             catch (Exception ex)
             {
@@ -137,14 +137,20 @@ namespace VendingMachineFunctions.Services
 
         private OrderStatus MapOrderToState(Order order)
         {
-            return new OrderStatus()
+            var returnOrder = new OrderStatus()
             {
                 CreationDate = order.OrderDate,
+                Requestor = order.Requestor,
                 PartitionKey = "orders",
                 RowKey = order.OrderId,
                 OrderState = order.OrderStatus,
-                LastUpdate = DateTime.Now
+                LastUpdate = DateTime.Now,
+                PermissionState = order.PermissionsTask.PermissionState,
+                SubscriptionState = order.SubscriptionTask.SubscriptionStatus,
+
             };
+
+            return returnOrder;
         }
 
         private Order MapStateToOrder(OrderStatus orderStatus)
@@ -152,9 +158,18 @@ namespace VendingMachineFunctions.Services
             return new Order()
             {
                 OrderId = orderStatus.RowKey,
+                Requestor = orderStatus.Requestor,
                 OrderDate = orderStatus.CreationDate,
                 OrderStatus = orderStatus.OrderState,
                 LastChanged = orderStatus.LastUpdate,
+                SubscriptionTask = new SubscriptionTask()
+                {
+                    SubscriptionStatus = orderStatus.SubscriptionState
+                },
+                PermissionsTask = new PermissionsTask()
+                {
+                    PermissionState = orderStatus.PermissionState
+                }
                 
             };
         }

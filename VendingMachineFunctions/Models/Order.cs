@@ -9,6 +9,7 @@ namespace VendingMachineFunctions.Models
     public class Order
     {
         public string OrderId { get; set; } = Guid.NewGuid().ToString();
+        public string Requestor { get; set; }
         public DateTime OrderDate { get; set; } = DateTime.Now;
         public DateTime LastChanged { get; set; } = DateTime.Now;
         public OrderState OrderStatus { get; set; } = OrderState.New;
@@ -21,6 +22,8 @@ namespace VendingMachineFunctions.Models
     {
         public string CostCenterId { get; set; } = "CC123";
         public string TenantId { get; set; } = "T123";
+        public OrderState SubscriptionStatus { get; set; }
+
     }
 
     public class PermissionsTask
@@ -28,6 +31,7 @@ namespace VendingMachineFunctions.Models
         public string SubscriptionId { get; set; } = "S123";
         public string[] OwnerIds { get; set; } = new string[] { "O123", "O124" };
         public string[] ContributorIds { get; set; } = new string[] { "O123", "O124" };
+        public OrderState PermissionState { get; set; }
     }
 
     public enum OrderState
@@ -37,6 +41,7 @@ namespace VendingMachineFunctions.Models
         Dispatched,
         InProgress,
         Delivered,
-        Aborted
+        Aborted,
+        NotApplicable
     }
 }

@@ -60,6 +60,20 @@ namespace VendingMachineFunctions
                 return new BadRequestObjectResult("Error in adding Order to Table Storage - " + ex.Message);
             }
 
+            //Switch state to accepted and update Table Storage
+            try
+            {
+                order.OrderStatus = VendingMachineFunctions.Models.OrderState.Accepted;
+                order.PermissionsTask.PermissionState = VendingMachineFunctions.Models.OrderState.Accepted;
+                order.SubscriptionTask.SubscriptionStatus = VendingMachineFunctions.Models.OrderState.Accepted;
+                await tableStorageService.UpdateOrderStatusAsync(order);
+            }
+            catch (Exception ex)
+            {
+
+                return new BadRequestObjectResult("Error in updating Order to Table Storage - " + ex.Message);
+            }
+
 
             //Send order to topic 
             try
@@ -76,7 +90,9 @@ namespace VendingMachineFunctions
             {
 
                 //Switch state to accepted and update Table Storage
-                order.OrderStatus = VendingMachineFunctions.Models.OrderState.Accepted;
+                order.OrderStatus = VendingMachineFunctions.Models.OrderState.Dispatched;
+                order.PermissionsTask.PermissionState = VendingMachineFunctions.Models.OrderState.Dispatched;
+                order.SubscriptionTask.SubscriptionStatus = VendingMachineFunctions.Models.OrderState.Dispatched;
                 await tableStorageService.UpdateOrderStatusAsync(order);
 
                 //Return accepted response

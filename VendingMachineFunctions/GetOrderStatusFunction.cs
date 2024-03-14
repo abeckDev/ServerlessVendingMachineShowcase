@@ -48,10 +48,12 @@ namespace VendingMachineFunctions
                 //Return OrderStatus as Json object response
                 return new OkObjectResult(new 
                 {
-                    orderId = OrderStatus.RowKey,
-                    orderState = OrderStatus.OrderState.ToString(),
-                    created = OrderStatus.CreationDate,
-                    lastUpdate = OrderStatus.LastUpdate
+                    orderId = OrderStatus.OrderId,
+                    orderState = OrderStatus.OrderStatus.ToString(),
+                    created = OrderStatus.OrderDate,
+                    lastUpdate = OrderStatus.LastChanged,
+                    permissionState = OrderStatus.PermissionsTask.PermissionState.ToString(),
+                    subscriptionState = OrderStatus.SubscriptionTask.SubscriptionStatus.ToString()
 
                 });
             }

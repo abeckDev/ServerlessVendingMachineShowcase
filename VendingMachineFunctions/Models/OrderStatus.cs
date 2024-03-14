@@ -19,8 +19,14 @@ namespace VendingMachineFunctions.Models
 
         public OrderState OrderState { get; set; }
 
+        public OrderState PermissionState { get; set; } = OrderState.NotApplicable;
+
+        public OrderState SubscriptionState { get; set; } = OrderState.NotApplicable;
+
         public DateTime CreationDate { get; set; }
 
         public DateTime LastUpdate { get; set; }
+
+        public string Requestor { get; set; }
     }
 }
