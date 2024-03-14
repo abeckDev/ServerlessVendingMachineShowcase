@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace VendingMachineFunctions.Models
 {
-    class Order
+    public class Order
     {
         public string OrderId { get; set; } = Guid.NewGuid().ToString();
         public DateTime OrderDate { get; set; } = DateTime.Now;
@@ -23,7 +23,7 @@ namespace VendingMachineFunctions.Models
         public string TenantId { get; set; } = "T123";
     }
 
-    class PermissionsTask
+    public class PermissionsTask
     {
         public string SubscriptionId { get; set; } = "S123";
         public string[] OwnerIds { get; set; } = new string[] { "O123", "O124" };

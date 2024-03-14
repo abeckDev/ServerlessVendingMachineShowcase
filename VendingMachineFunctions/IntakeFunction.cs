@@ -47,11 +47,33 @@ namespace VendingMachineFunctions
 
             try
             {
+                //Save initial state to table store
                 var response = await tableStorageService.AddOrderStatusAsync(order);
                 if (response.IsError)
                 {
                     throw new Exception("Error in adding Order to Table Storage");
                 };
+
+            }
+            catch (Exception ex)
+            {
+                return new BadRequestObjectResult("Error in adding Order to Table Storage - " + ex.Message);
+            }
+
+
+            //Send order to topic 
+            try
+            {
+                var sbService = new ServiceBusService();
+                await sbService.SendOrderMessage(order);
+            }
+            catch (Exception ex)
+            {
+                return new BadRequestObjectResult("Error in sending Order to Topic - " + ex.Message);
+            }
+            
+            try
+            {
 
                 //Switch state to accepted and update Table Storage
                 order.OrderStatus = VendingMachineFunctions.Models.OrderState.Accepted;
@@ -60,9 +82,10 @@ namespace VendingMachineFunctions
                 //Return accepted response
                 return new AcceptedResult(@"http://localhost:7111/api/GetOrderStatusFunction?orderId=" + order.OrderId, order.OrderId);
             }
-            catch (Exception ex)
+            catch (Exception ex) 
             {
-                return new BadRequestObjectResult("Error in adding Order to Table Storage - " + ex.Message);
+
+                return new BadRequestObjectResult("Error in updating Order to Table Storage - " + ex.Message);
             }
         }
     }
