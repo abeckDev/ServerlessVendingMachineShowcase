@@ -55,24 +55,35 @@ namespace VendingMachineFunctions
 
             //Your code logic here -- It is mocked
             _logger.LogInformation("Order {orderId} is in progress", sborderobject.OrderId);
-            System.Threading.Tasks.Task.Delay(5000).Wait();
-            _logger.LogInformation("Successfully updated SUBSCRIPTIONS (and of course did not mock anything at all...) for order {orderId}", sborderobject.OrderId);
 
-            // Complete the message
-            try
+            //Check for debug flag 
+            if (sborderobject.SubscriptionTask.CostCenterId == "42")
             {
-
-                //Get current state
-                var order = await tableStorageService.GetOrderStatusAsync(orderId);
-                //Switch state to delivered and update Table Storage
-                order.SubscriptionTask.SubscriptionStatus = OrderState.Delivered;
-                await tableStorageService.UpdateOrderStatusAsync(order);
-            }
-            catch (Exception ex)
-            {
+                _logger.LogInformation("Debug flag is identified. I will now mess up the processing");
                 await messageActions.AbandonMessageAsync(message);
+                throw new Exception("Dont feel like workiong today. Ask again in an hour");
             }
-            await messageActions.CompleteMessageAsync(message);
+            else
+            {
+                System.Threading.Tasks.Task.Delay(5000).Wait();
+                _logger.LogInformation("Successfully updated SUBSCRIPTIONS (and of course did not mock anything at all...) for order {orderId}", sborderobject.OrderId);
+
+                // Complete the message
+                try
+                {
+
+                    //Get current state
+                    var order = await tableStorageService.GetOrderStatusAsync(orderId);
+                    //Switch state to delivered and update Table Storage
+                    order.SubscriptionTask.SubscriptionStatus = OrderState.Delivered;
+                    await tableStorageService.UpdateOrderStatusAsync(order);
+                }
+                catch (Exception ex)
+                {
+                    await messageActions.AbandonMessageAsync(message);
+                }
+                await messageActions.CompleteMessageAsync(message);
+            }
         }
     }
 }

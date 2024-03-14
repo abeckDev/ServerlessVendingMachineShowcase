@@ -15,12 +15,37 @@ namespace VendingMachineFunctions
         }
 
         [Function("HousekeepingFunction")]
-        public async Task RunAsync([TimerTrigger("0 */5 * * * *")] TimerInfo myTimer)
+        public async Task RunAsync([TimerTrigger("*/5 * * * * *")] TimerInfo myTimer)
         {
             _logger.LogInformation($"C# Timer trigger function executed at: {DateTime.Now}");
 
 
             var tableStorageService = new TableStorageService();
+            var sbService = new ServiceBusService();
+
+
+            //Checking for succeeded orders 
+            var completedOrders = tableStorageService.GetOrdersByState(Models.OrderState.InProgress);
+
+            foreach (var order in completedOrders)
+            {
+                //Check if all steps are done
+                if(order.SubscriptionTask.SubscriptionStatus == Models.OrderState.Delivered &&
+                   order.PermissionsTask.PermissionState == Models.OrderState.Delivered)
+                {
+                    order.OrderStatus = Models.OrderState.Delivered;
+                    await tableStorageService.UpdateOrderStatusAsync(order);
+                    
+                    //CreateNotification that order is done
+                    await sbService.SendNotificationRequest(new Models.NotificationRequest()
+                    {
+                        MessageBody = $"Order {order.OrderId} has been fully processed. Thanks for choosing our vending machine today!",
+                        Recepients = [order.Requestor],
+                    });
+                }
+            }
+
+
 
             //Filtering for orders that are done or aborted 
             var succeededTasks = tableStorageService.GetOrdersByState(Models.OrderState.Delivered);
@@ -31,7 +56,7 @@ namespace VendingMachineFunctions
             int deleteCounter = 0;
             foreach (var order in succeededTasks)
             {
-                if (DateTime.Now - order.LastChanged > TimeSpan.FromDays(1))
+                if (DateTime.UtcNow - order.LastChanged > TimeSpan.FromMinutes(5))
                 {
                     //Delete the findings from the table storage
                     await tableStorageService.DeleteOrderStatusAsync(order.OrderId);

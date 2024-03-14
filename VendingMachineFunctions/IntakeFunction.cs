@@ -27,6 +27,7 @@ namespace VendingMachineFunctions
             var order = new Order()
             {
                 OrderId = Guid.NewGuid().ToString(),
+                Requestor = "Alexander.Beck@microsoft.com",
                 OrderStatus = VendingMachineFunctions.Models.OrderState.New,
                 OrderDate = DateTime.Now,
                 SubscriptionTask = new SubscriptionTask()
@@ -41,6 +42,11 @@ namespace VendingMachineFunctions
                     ContributorIds = new string[] { "O123", "O124" }
                 }
             };
+
+            if (req.Query["debug"] == "true")
+            {
+                order.SubscriptionTask.CostCenterId = "42";
+            }
 
             //Add Order to Table Storage
             var tableStorageService = new TableStorageService();
