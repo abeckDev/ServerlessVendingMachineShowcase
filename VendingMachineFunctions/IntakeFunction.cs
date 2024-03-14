@@ -52,6 +52,11 @@ namespace VendingMachineFunctions
                 {
                     throw new Exception("Error in adding Order to Table Storage");
                 };
+
+                //Switch state to accepted and update Table Storage
+                order.OrderStatus = VendingMachineFunctions.Models.OrderState.Accepted;
+                await tableStorageService.UpdateOrderStatus(order);
+
                 //Return accepted response
                 return new AcceptedResult(@"http://localhost:7111/api/GetOrderStatusFunction?orderId=" + order.OrderId, order.OrderId);
             }
