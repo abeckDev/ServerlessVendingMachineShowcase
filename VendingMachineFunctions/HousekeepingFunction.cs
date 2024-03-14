@@ -22,6 +22,9 @@ namespace VendingMachineFunctions
 
             var tableStorageService = new TableStorageService();
 
+            //Todo: Implement filtering for orders that are done and older than a day 
+
+            //Delete the findings from the table storage
 
 
             
