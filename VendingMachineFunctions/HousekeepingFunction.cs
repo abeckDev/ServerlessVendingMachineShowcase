@@ -45,8 +45,6 @@ namespace VendingMachineFunctions
                 }
             }
 
-
-
             //Filtering for orders that are done or aborted 
             var succeededTasks = tableStorageService.GetOrdersByState(Models.OrderState.Delivered);
             succeededTasks.AddRange(tableStorageService.GetOrdersByState(Models.OrderState.Aborted));
@@ -56,7 +54,7 @@ namespace VendingMachineFunctions
             int deleteCounter = 0;
             foreach (var order in succeededTasks)
             {
-                if (DateTime.UtcNow - order.LastChanged > TimeSpan.FromMinutes(5))
+                if (DateTime.UtcNow - order.LastChanged > TimeSpan.FromMinutes(1))
                 {
                     //Delete the findings from the table storage
                     await tableStorageService.DeleteOrderStatusAsync(order.OrderId);

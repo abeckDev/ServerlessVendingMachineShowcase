@@ -53,6 +53,8 @@ namespace VendingMachineFunctions
 
             //Your code logic here -- It is mocked
 
+
+
             //Send bad news message
             var sbService = new ServiceBusService();
             await sbService.SendNotificationRequest(new Models.NotificationRequest()

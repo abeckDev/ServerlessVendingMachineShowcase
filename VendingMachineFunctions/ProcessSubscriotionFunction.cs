@@ -33,7 +33,7 @@ namespace VendingMachineFunctions
             //Deserialie Order from message body
             var sborderobject = JsonConvert.DeserializeObject<Order>(message.Body.ToString());
             string orderId = sborderobject.OrderId;
-
+            
 
             //Set the order State to InProgress
             var tableStorageService = new TableStorageService();
