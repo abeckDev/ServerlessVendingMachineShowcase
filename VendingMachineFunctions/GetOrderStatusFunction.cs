@@ -32,11 +32,18 @@ namespace VendingMachineFunctions
             //InitialeTableStorageService
             var tableStorageService = new TableStorageService();
 
+            //Debug
+            if (orderId == "debug")
+            {
+                return new OkObjectResult(tableStorageService.GetOrdersByState(Models.OrderState.Accepted));
+            }
+
+
 
             try
             {
                 //Get OrderStatus from Table Storage
-                var OrderStatus = await tableStorageService.GetOrderStatus(orderId);
+                var OrderStatus = await tableStorageService.GetOrderStatusAsync(orderId);
                 
                 //Return OrderStatus as Json object response
                 return new OkObjectResult(new 

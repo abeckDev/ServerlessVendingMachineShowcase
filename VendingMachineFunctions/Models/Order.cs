@@ -10,6 +10,7 @@ namespace VendingMachineFunctions.Models
     {
         public string OrderId { get; set; } = Guid.NewGuid().ToString();
         public DateTime OrderDate { get; set; } = DateTime.Now;
+        public DateTime LastChanged { get; set; } = DateTime.Now;
         public OrderState OrderStatus { get; set; } = OrderState.New;
         public SubscriptionTask SubscriptionTask { get; set; } = new SubscriptionTask();
         public PermissionsTask PermissionsTask { get; set; } = new PermissionsTask();

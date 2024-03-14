@@ -47,7 +47,7 @@ namespace VendingMachineFunctions
 
             try
             {
-                var response = await tableStorageService.AddOrderStatus(order);
+                var response = await tableStorageService.AddOrderStatusAsync(order);
                 if (response.IsError)
                 {
                     throw new Exception("Error in adding Order to Table Storage");
@@ -55,7 +55,7 @@ namespace VendingMachineFunctions
 
                 //Switch state to accepted and update Table Storage
                 order.OrderStatus = VendingMachineFunctions.Models.OrderState.Accepted;
-                await tableStorageService.UpdateOrderStatus(order);
+                await tableStorageService.UpdateOrderStatusAsync(order);
 
                 //Return accepted response
                 return new AcceptedResult(@"http://localhost:7111/api/GetOrderStatusFunction?orderId=" + order.OrderId, order.OrderId);

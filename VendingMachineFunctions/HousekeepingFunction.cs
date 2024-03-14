@@ -15,17 +15,31 @@ namespace VendingMachineFunctions
         }
 
         [Function("HousekeepingFunction")]
-        public void Run([TimerTrigger("0 */5 * * * *")] TimerInfo myTimer)
+        public async Task RunAsync([TimerTrigger("0 */5 * * * *")] TimerInfo myTimer)
         {
             _logger.LogInformation($"C# Timer trigger function executed at: {DateTime.Now}");
 
 
             var tableStorageService = new TableStorageService();
 
-            //Todo: Implement filtering for orders that are done and older than a day 
+            //Filtering for orders that are done or aborted 
+            var succeededTasks = tableStorageService.GetOrdersByState(Models.OrderState.Delivered);
+            succeededTasks.AddRange(tableStorageService.GetOrdersByState(Models.OrderState.Aborted));
+            _logger.LogInformation($"Found {succeededTasks.Count} succeeded and aborted orders");
 
-            //Delete the findings from the table storage
-
+            //Check wich one of these are last updated longer than a day 
+            int deleteCounter = 0;
+            foreach (var order in succeededTasks)
+            {
+                if (DateTime.Now - order.LastChanged > TimeSpan.FromDays(1))
+                {
+                    //Delete the findings from the table storage
+                    await tableStorageService.DeleteOrderStatusAsync(order.OrderId);
+                    deleteCounter++;
+                }
+            }
+            _logger.LogInformation($"Deleted {deleteCounter} orders");
+            
 
             
             if (myTimer.ScheduleStatus is not null)

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -25,7 +26,7 @@ namespace VendingMachineFunctions.Services
             this.tableClient = serviceClient.GetTableClient("orders");
         }
 
-        public async Task<Azure.Response> AddOrderStatus(Order order)
+        public async Task<Azure.Response> AddOrderStatusAsync(Order order)
         {
 
             //Create TableItem
@@ -56,7 +57,31 @@ namespace VendingMachineFunctions.Services
             }
         } 
 
-        public async Task<Azure.Response> UpdateOrderStatus(Order order)
+        public List<Order> GetOrdersByState(OrderState state)
+        {
+            try
+            {
+                //Get TableEntities
+
+                Pageable<OrderStatus> queryResultsFilter = tableClient.Query<OrderStatus>(filter: $"OrderState eq '{state.ToString()}'");
+    
+                //Create return element
+                var response = new List<Order>();
+
+                foreach (OrderStatus orderState in queryResultsFilter)
+                {
+                    response.Add(MapStateToOrder(orderState));
+                }
+
+                return response;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error in retrieving Orders from Table Storage", ex);
+            }
+        }
+
+        public async Task<Azure.Response> UpdateOrderStatusAsync(Order order)
         {
             OrderStatus orderStatus = MapOrderToState(order);
 
@@ -83,7 +108,7 @@ namespace VendingMachineFunctions.Services
             }
         }
 
-        public async Task<Azure.Response> DeleteOrderStatus(string orderId)
+        public async Task<Azure.Response> DeleteOrderStatusAsync(string orderId)
         {
             try
             {
@@ -97,7 +122,7 @@ namespace VendingMachineFunctions.Services
         }
 
         //Get Status by OrderId
-        public async Task<OrderStatus> GetOrderStatus(string orderId)
+        public async Task<OrderStatus> GetOrderStatusAsync(string orderId)
         {
             try
             {
@@ -119,6 +144,18 @@ namespace VendingMachineFunctions.Services
                 RowKey = order.OrderId,
                 OrderState = order.OrderStatus,
                 LastUpdate = DateTime.Now
+            };
+        }
+
+        private Order MapStateToOrder(OrderStatus orderStatus)
+        {
+            return new Order()
+            {
+                OrderId = orderStatus.RowKey,
+                OrderDate = orderStatus.CreationDate,
+                OrderStatus = orderStatus.OrderState,
+                LastChanged = orderStatus.LastUpdate,
+                
             };
         }
     }
